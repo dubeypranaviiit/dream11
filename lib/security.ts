@@ -31,7 +31,7 @@ export function checkRateLimit(ip: string): { allowed: boolean; remaining: numbe
 export function sanitizeText(text: string, maxLength: number = 200): string {
   if (typeof text !== 'string') return '';
   return text
-    .replace(/[^\w\s.,!?'"()-]/gi, '')
+    .replace(/[^\w\s.,!?'"()+&/-]/gi, '')
     .trim()
     .slice(0, maxLength);
 }

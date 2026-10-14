@@ -61,7 +61,7 @@ function generateDynamicFallback(
 
     let lookaheadSection = '';
     if (pendingPlayers.length > 0) {
-      lookaheadSection = `Pending Players: Aapki team mein ${pendingNames.join(', ')} ne abhi tak points score nahi kiye hain aur aane wale overs mein unki performance decisive hogi.`;
+      lookaheadSection = `Pending Players: ${pendingNames.join(', ')} ke abhi tak koi points nahi hain (no points yet).`;
     } else {
       lookaheadSection = 'Lookahead: Aapki fantasy team ke sabhi 11 players is match mein points contribute kar chuke hain.';
     }
@@ -89,7 +89,7 @@ function generateDynamicFallback(
 
   let lookaheadSection = '';
   if (pendingPlayers.length > 0) {
-    lookaheadSection = `Pending Players: ${pendingNames.join(', ')} are yet to score fantasy points in this innings and hold key potential for your rank.`;
+    lookaheadSection = `Pending Players: ${pendingNames.join(', ')} have no points yet in this innings.`;
   } else {
     lookaheadSection = 'Squad Update: All 11 players in your fantasy lineup have actively recorded points in this match.';
   }
