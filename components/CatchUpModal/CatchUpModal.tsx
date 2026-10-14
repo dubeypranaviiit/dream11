@@ -98,17 +98,17 @@ export default function CatchUpModal({ isOpen, onClose }: CatchUpModalProps) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="catch-up-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm"
     >
-      <div className="bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-950/60">
+      <div className="bg-[#101727] border border-[#243047] rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[88vh] sm:max-h-[85vh]">
+        <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-[#243047] bg-[#080B14]/70">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white shadow-md">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-[#FF1744] flex items-center justify-center text-white shadow-md">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
               <h2 id="catch-up-title" className="text-sm font-bold text-white tracking-wide">
-                {language === 'hinglish' ? '30-Second Match Catch-Up' : '30-Second Match Catch-Up'}
+                30-Second Match Catch-Up
               </h2>
               <p className="text-[11px] text-slate-400">
                 {playedEvents.length} balls played • Live AI analysis
@@ -121,12 +121,12 @@ export default function CatchUpModal({ isOpen, onClose }: CatchUpModalProps) {
               <button
                 type="button"
                 onClick={handleCopy}
-                className="p-1.5 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-slate-800 transition-colors"
+                className="p-1.5 text-slate-400 hover:text-slate-200 rounded-lg hover:bg-[#151F32] transition-colors cursor-pointer"
                 title="Copy summary text"
                 aria-label="Copy summary text"
               >
                 {copied ? (
-                  <Check className="w-4 h-4 text-emerald-400" />
+                  <Check className="w-4 h-4 text-[#22C55E]" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
@@ -136,7 +136,7 @@ export default function CatchUpModal({ isOpen, onClose }: CatchUpModalProps) {
               type="button"
               onClick={handleRefresh}
               disabled={status === 'streaming'}
-              className="p-1.5 text-slate-400 hover:text-slate-200 disabled:opacity-30 rounded-lg hover:bg-slate-800 transition-colors"
+              className="p-1.5 text-slate-400 hover:text-slate-200 disabled:opacity-30 rounded-lg hover:bg-[#151F32] transition-colors cursor-pointer disabled:cursor-not-allowed"
               title="Regenerate catch-up"
               aria-label="Regenerate catch-up"
             >
@@ -145,7 +145,7 @@ export default function CatchUpModal({ isOpen, onClose }: CatchUpModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-[#151F32] transition-colors cursor-pointer"
               aria-label="Close modal"
             >
               <X className="w-5 h-5" />
@@ -153,7 +153,7 @@ export default function CatchUpModal({ isOpen, onClose }: CatchUpModalProps) {
           </div>
         </div>
 
-        <div className="p-5 overflow-y-auto flex-1 space-y-4">
+        <div className="p-4 sm:p-5 overflow-y-auto flex-1 space-y-4">
           {status === 'failed' ? (
             <div className="bg-rose-950/40 border border-rose-800/80 rounded-xl p-4 flex items-start gap-3 text-xs text-rose-300">
               <AlertCircle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
@@ -163,7 +163,7 @@ export default function CatchUpModal({ isOpen, onClose }: CatchUpModalProps) {
                 <button
                   type="button"
                   onClick={handleRefresh}
-                  className="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-md text-xs font-semibold"
+                  className="px-3 py-1 bg-[#FF1744] hover:bg-[#e0143c] text-white rounded-md text-xs font-semibold cursor-pointer"
                 >
                   Retry
                 </button>
@@ -171,23 +171,23 @@ export default function CatchUpModal({ isOpen, onClose }: CatchUpModalProps) {
             </div>
           ) : !summary && status === 'streaming' ? (
             <div className="space-y-3 animate-pulse">
-              <div className="h-4 bg-slate-800 rounded w-3/4" />
-              <div className="h-4 bg-slate-800 rounded w-full" />
-              <div className="h-4 bg-slate-800 rounded w-5/6" />
-              <div className="h-4 bg-slate-800 rounded w-2/3" />
+              <div className="h-4 bg-[#151F32] rounded w-3/4" />
+              <div className="h-4 bg-[#151F32] rounded w-full" />
+              <div className="h-4 bg-[#151F32] rounded w-5/6" />
+              <div className="h-4 bg-[#151F32] rounded w-2/3" />
             </div>
           ) : (
             <div className="prose prose-invert max-w-none text-xs sm:text-sm text-slate-200 leading-relaxed space-y-3 whitespace-pre-line font-normal">
               {summary}
               {status === 'streaming' && (
-                <span className="inline-block w-1.5 h-4 ml-1 bg-rose-500 animate-pulse align-middle" />
+                <span className="inline-block w-1.5 h-4 ml-1 bg-[#FF1744] animate-pulse align-middle" />
               )}
               <div ref={streamEndRef} />
             </div>
           )}
         </div>
 
-        <div className="px-5 py-3 border-t border-slate-800 bg-slate-950/80 flex items-center justify-between text-xs text-slate-400">
+        <div className="px-4 sm:px-5 py-3 border-t border-[#243047] bg-[#080B14]/90 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
           <div>
             <span>Your Fantasy Status: </span>
             <span className="font-bold text-white">{totalPoints} pts</span>
@@ -197,7 +197,7 @@ export default function CatchUpModal({ isOpen, onClose }: CatchUpModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold rounded-lg transition-colors"
+            className="px-3.5 py-1.5 bg-[#151F32] hover:bg-[#1c2942] border border-[#243047] text-slate-200 font-semibold rounded-lg transition-colors cursor-pointer"
           >
             Done
           </button>

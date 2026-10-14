@@ -1,15 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0f19;
-  --surface: #131b2e;
-  --surface-card: #182238;
+  --background: #080B14;
+  --surface: #101727;
+  --surface-card: #151F32;
+  --border-color: #243047;
   --foreground: #f8fafc;
   --text-muted: #94a3b8;
-  --brand-red: #e11d48;
-  --brand-gold: #f59e0b;
-  --brand-cyan: #06b6d4;
-  --brand-green: #10b981;
+  --accent-red: #FF1744;
+  --accent-green: #22C55E;
+  --accent-blue: #38BDF8;
+  --accent-amber: #f59e0b;
 }
 
 body {
@@ -19,6 +20,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 ::-webkit-scrollbar {
@@ -27,16 +29,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #080B14;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #243047;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #334155;
 }
 
 @keyframes pulseGlow {

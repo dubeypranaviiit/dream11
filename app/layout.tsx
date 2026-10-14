@@ -23,7 +23,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#0b0f19',
+  themeColor: '#080B14',
 };
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} dark`}>
-      <body className="min-h-screen bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-rose-500 selection:text-white">
+      <body className="min-h-screen bg-[#080B14] text-slate-100 flex flex-col antialiased selection:bg-rose-500 selection:text-white">
         <StoreProvider>{children}</StoreProvider>
       </body>
     </html>

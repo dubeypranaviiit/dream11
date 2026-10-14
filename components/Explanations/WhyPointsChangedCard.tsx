@@ -48,17 +48,17 @@ export default function WhyPointsChangedCard() {
 
   if (!currentEvent) {
     return (
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-md text-center py-6">
-        <div className="w-10 h-10 mx-auto rounded-full bg-slate-800 flex items-center justify-center text-slate-400 mb-2.5">
-          <Activity className="w-5 h-5" />
+      <div className="bg-[#151F32] border border-[#243047] rounded-2xl p-6 sm:p-8 shadow-lg text-center">
+        <div className="w-12 h-12 mx-auto rounded-full bg-[#101727] border border-[#243047] flex items-center justify-center text-slate-400 mb-3">
+          <Activity className="w-6 h-6 text-rose-500" />
         </div>
-        <h3 className="text-sm font-semibold text-slate-200 mb-1">
+        <h3 className="text-sm sm:text-base font-bold text-white mb-1.5">
           {language === 'hinglish' ? 'Match Shuru Nahi Hua' : 'Simulation Not Started'}
         </h3>
-        <p className="text-xs text-slate-400 max-w-sm mx-auto">
+        <p className="text-xs sm:text-[13px] text-slate-400 max-w-md mx-auto leading-relaxed">
           {language === 'hinglish'
-            ? 'Ball-by-ball simulated action dekhne ke liye "Simulate next ball" click karein ya "Join late at ball 15" dabayein.'
-            : 'Click "Simulate next ball" or use "Join late at ball 15" to experience live fantasy point explanations.'}
+            ? 'Ball-by-ball simulated action dekhne ke liye "Simulate next ball" click karein ya "Join late" dabayein.'
+            : 'Click "Simulate next ball" or use "Join Late" to experience real-time fantasy point explanations.'}
         </p>
       </div>
     );
@@ -68,31 +68,31 @@ export default function WhyPointsChangedCard() {
   const isNegative = lastPointsDelta < 0;
 
   return (
-    <div className="bg-slate-900/95 border border-slate-800 rounded-2xl p-4 shadow-md transition-all">
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-rose-950/80 border border-rose-800/80 flex items-center justify-center text-rose-400">
+    <div className="bg-[#151F32] border border-[#243047] rounded-2xl p-4 sm:p-5 shadow-lg transition-all">
+      <div className="flex items-center justify-between gap-3 mb-3.5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-[#FF1744]">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white tracking-wide">
+            <h3 className="text-sm sm:text-base font-bold text-white tracking-wide">
               {language === 'hinglish' ? 'Mere Points Kyun Badle?' : 'Why Did My Points Change?'}
             </h3>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-xs text-slate-400 font-medium">
               Ball {currentEvent.displayOver} • {currentEvent.bowlerName.split(' ').pop()} to{' '}
               {currentEvent.batsmanName.split(' ').pop()}
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           <div
-            className={`px-2.5 py-1 rounded-full text-xs font-black tracking-tight flex items-center gap-1 border ${
+            className={`px-3 py-1 rounded-full text-xs sm:text-sm font-black tracking-tight flex items-center gap-1 border shadow-sm ${
               isPositive
-                ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
+                ? 'bg-emerald-950/80 text-[#22C55E] border-emerald-500/40'
                 : isNegative
-                  ? 'bg-rose-950 text-rose-300 border-rose-800'
-                  : 'bg-slate-800 text-slate-400 border-slate-700'
+                  ? 'bg-rose-950/80 text-[#FF1744] border-rose-500/40'
+                  : 'bg-[#101727] text-slate-400 border-[#243047]'
             }`}
           >
             <span>
@@ -102,7 +102,7 @@ export default function WhyPointsChangedCard() {
         </div>
       </div>
 
-      <div className="bg-slate-950/70 border border-slate-850 rounded-xl p-3">
+      <div className="bg-[#0B101D] border border-[#243047] rounded-xl p-3.5 sm:p-4">
         {explainStatus === 'loading' ? (
           <ExplanationSkeleton />
         ) : explainStatus === 'failed' ? (
@@ -114,7 +114,7 @@ export default function WhyPointsChangedCard() {
             <button
               type="button"
               onClick={handleRetry}
-              className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold rounded-md border border-slate-700 transition-colors"
+              className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#151F32] hover:bg-[#1c2942] text-slate-200 text-[11px] font-semibold rounded-md border border-[#243047] transition-colors cursor-pointer"
             >
               <RefreshCw className="w-3 h-3" />
               Retry
@@ -122,30 +122,30 @@ export default function WhyPointsChangedCard() {
           </div>
         ) : (
           <div>
-            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-normal">
+            <p className="text-xs sm:text-sm text-slate-100 leading-relaxed font-normal">
               {currentExplanation || 'Deterministic scoring applied for this ball.'}
             </p>
 
             {lastBreakdown && lastBreakdown.playerBreakdowns.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5 mt-2.5 pt-2 border-t border-slate-800/80">
+              <div className="flex flex-wrap items-center gap-2 mt-3 pt-2.5 border-t border-[#243047]/80">
                 {lastBreakdown.playerBreakdowns.map((p) => (
                   <span
                     key={p.playerId}
-                    className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700/80 text-slate-300 font-medium"
+                    className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg bg-[#151F32] border border-[#243047] text-slate-200 font-medium"
                   >
                     <span>{p.playerName}</span>
                     {p.isCaptain && (
-                      <span className="text-[9px] font-bold text-amber-400">C</span>
+                      <span className="text-[9px] font-black px-1 py-0.2 rounded bg-amber-400 text-slate-950">C</span>
                     )}
                     {p.isViceCaptain && (
-                      <span className="text-[9px] font-bold text-cyan-400">VC</span>
+                      <span className="text-[9px] font-black px-1 py-0.2 rounded bg-[#38BDF8] text-slate-950">VC</span>
                     )}
                     <span
-                      className={`font-bold ${
+                      className={`font-black ${
                         p.netPoints > 0
-                          ? 'text-emerald-400'
+                          ? 'text-[#22C55E]'
                           : p.netPoints < 0
-                            ? 'text-rose-400'
+                            ? 'text-[#FF1744]'
                             : 'text-slate-400'
                       }`}
                     >
@@ -159,7 +159,7 @@ export default function WhyPointsChangedCard() {
         )}
       </div>
 
-      <div className="flex items-center justify-between text-[10px] text-slate-400 mt-2 px-1">
+      <div className="flex items-center justify-between text-[11px] text-slate-400 mt-2.5 px-1 font-medium">
         <span>Deterministic Dream11 rules engine</span>
         {isFallback && explainStatus === 'succeeded' && (
           <span className="text-slate-400">Instant rule breakdown</span>
