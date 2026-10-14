@@ -2,7 +2,7 @@ import { GoogleGenAI } from '@google/genai';
 import { SYSTEM_PROMPTS } from './prompts';
 import { AppLanguage } from '@/types/api';
 
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 const API_TIMEOUT_MS = 8000;
 
 function getGeminiClient(): GoogleGenAI | null {
@@ -23,11 +23,12 @@ export async function generateGeminiExplanation(
   }
 
   const systemInstruction = SYSTEM_PROMPTS[language];
+  let timerId: NodeJS.Timeout | undefined;
 
   try {
-    const timeoutPromise = new Promise<null>((_, reject) =>
-      setTimeout(() => reject(new Error('Gemini API request timed out')), API_TIMEOUT_MS),
-    );
+    const timeoutPromise = new Promise<null>((_, reject) => {
+      timerId = setTimeout(() => reject(new Error('Gemini API request timed out')), API_TIMEOUT_MS);
+    });
 
     const apiPromise = client.models.generateContent({
       model: GEMINI_MODEL,
@@ -51,6 +52,8 @@ export async function generateGeminiExplanation(
     return { text: outputText };
   } catch {
     return null;
+  } finally {
+    if (timerId) clearTimeout(timerId);
   }
 }
 
@@ -67,11 +70,12 @@ export async function streamGeminiCatchUp(
   }
 
   const systemInstruction = SYSTEM_PROMPTS[language];
+  let timerId: NodeJS.Timeout | undefined;
 
   try {
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error('Catch-up API timeout')), API_TIMEOUT_MS),
-    );
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timerId = setTimeout(() => reject(new Error('Catch-up API timeout')), API_TIMEOUT_MS);
+    });
 
     const streamPromise = client.models.generateContentStream({
       model: GEMINI_MODEL,
@@ -103,6 +107,8 @@ export async function streamGeminiCatchUp(
     });
   } catch {
     return createMockStream(fallbackText, encoder);
+  } finally {
+    if (timerId) clearTimeout(timerId);
   }
 }
 

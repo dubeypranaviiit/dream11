@@ -9,8 +9,8 @@ import { AppLanguage } from '@/types/api';
 
 export const DREAM11_T20_RULES = {
   RUN: 1,
-  BOUNDARY_BONUS_4: 4,
-  SIX_BONUS_6: 6,
+  BOUNDARY_BONUS_4: 1,
+  SIX_BONUS_6: 2,
   DUCK: -2,
   WICKET: 25,
   LBW_BOWLED_BONUS: 8,
@@ -22,6 +22,10 @@ export const DREAM11_T20_RULES = {
   CAPTAIN_MULTIPLIER: 2.0,
   VICE_CAPTAIN_MULTIPLIER: 1.5,
 } as const;
+
+function roundToOneDecimal(value: number): number {
+  return Math.round(value * 10) / 10;
+}
 
 export function computeBallPoints(
   event: BallEvent,
@@ -80,7 +84,7 @@ export function computeBallPoints(
         isViceCaptain: batsman.isViceCaptain,
         basePoints: basePts,
         multiplier: mult,
-        netPoints: Math.round(basePts * mult),
+        netPoints: roundToOneDecimal(basePts * mult),
         reasons,
       });
     }
@@ -116,7 +120,7 @@ export function computeBallPoints(
         isViceCaptain: bowler.isViceCaptain,
         basePoints: basePts,
         multiplier: mult,
-        netPoints: Math.round(basePts * mult),
+        netPoints: roundToOneDecimal(basePts * mult),
         reasons,
       });
     }
@@ -150,7 +154,7 @@ export function computeBallPoints(
         isViceCaptain: fielder.isViceCaptain,
         basePoints: basePts,
         multiplier: mult,
-        netPoints: Math.round(basePts * mult),
+        netPoints: roundToOneDecimal(basePts * mult),
         reasons,
       });
     }
@@ -176,14 +180,15 @@ export function computeBallPoints(
           isViceCaptain: fielder.isViceCaptain,
           basePoints: pts,
           multiplier: mult,
-          netPoints: Math.round(pts * mult),
+          netPoints: roundToOneDecimal(pts * mult),
           reasons: [reason],
         });
       }
     }
   }
 
-  const netTeamPointsDelta = breakdowns.reduce((acc, curr) => acc + curr.netPoints, 0);
+  const rawSum = breakdowns.reduce((acc, curr) => acc + curr.netPoints, 0);
+  const netTeamPointsDelta = roundToOneDecimal(rawSum);
   const newRank = calculateSimulatedRank(baselineRank, netTeamPointsDelta);
   const rankDifference = baselineRank - newRank;
 

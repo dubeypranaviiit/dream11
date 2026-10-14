@@ -39,7 +39,7 @@ export const teamSlice = createSlice({
       for (const pBreakdown of breakdown.playerBreakdowns) {
         const player = state.players.find((p) => p.id === pBreakdown.playerId);
         if (player) {
-          player.points += pBreakdown.netPoints;
+          player.points = Math.round((player.points + pBreakdown.netPoints) * 10) / 10;
         }
       }
 
@@ -88,7 +88,8 @@ export const selectLastRankDelta = (state: RootState) => state.team.lastRankDelt
 export const selectLastBreakdown = (state: RootState) => state.team.lastBreakdown;
 
 export const selectTotalPoints = createSelector([selectTeamPlayers], (players): number => {
-  return players.reduce((total, player) => total + player.points, 0);
+  const sum = players.reduce((total, player) => total + player.points, 0);
+  return Math.round(sum * 10) / 10;
 });
 
 export const selectCaptain = createSelector([selectTeamPlayers], (players): FantasyPlayer | undefined => {

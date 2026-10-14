@@ -31,8 +31,8 @@ function createPlayer(overrides: Partial<FantasyPlayer> & { id: string; name: st
 describe('Dream11 T20 Scoring Engine', () => {
   it('has correct official Dream11 T20 constants', () => {
     expect(DREAM11_T20_RULES.RUN).toBe(1);
-    expect(DREAM11_T20_RULES.BOUNDARY_BONUS_4).toBe(4);
-    expect(DREAM11_T20_RULES.SIX_BONUS_6).toBe(6);
+    expect(DREAM11_T20_RULES.BOUNDARY_BONUS_4).toBe(1);
+    expect(DREAM11_T20_RULES.SIX_BONUS_6).toBe(2);
     expect(DREAM11_T20_RULES.DUCK).toBe(-2);
     expect(DREAM11_T20_RULES.WICKET).toBe(25);
     expect(DREAM11_T20_RULES.LBW_BOWLED_BONUS).toBe(8);
@@ -45,7 +45,7 @@ describe('Dream11 T20 Scoring Engine', () => {
     expect(DREAM11_T20_RULES.VICE_CAPTAIN_MULTIPLIER).toBe(1.5);
   });
 
-  it('calculates Six bonus correctly (6 runs + 6 bonus = 12 points)', () => {
+  it('calculates Six bonus correctly (6 runs + 2 bonus = 8 points)', () => {
     const batsman = createPlayer({ id: 'sky', name: 'Suryakumar Yadav', role: 'BAT' });
 
     const event: BallEvent = {
@@ -70,9 +70,9 @@ describe('Dream11 T20 Scoring Engine', () => {
 
     expect(result.affectsUserTeam).toBe(true);
     expect(result.playerBreakdowns).toHaveLength(1);
-    expect(result.playerBreakdowns[0].basePoints).toBe(12);
-    expect(result.playerBreakdowns[0].netPoints).toBe(12);
-    expect(result.netTeamPointsDelta).toBe(12);
+    expect(result.playerBreakdowns[0].basePoints).toBe(8);
+    expect(result.playerBreakdowns[0].netPoints).toBe(8);
+    expect(result.netTeamPointsDelta).toBe(8);
   });
 
   it('calculates Duck penalty with Captain 2x multiplier (-2 x 2 = -4 points)', () => {
@@ -117,7 +117,7 @@ describe('Dream11 T20 Scoring Engine', () => {
     expect(result.netTeamPointsDelta).toBe(-4);
   });
 
-  it('calculates Vice-Captain 1.5x multiplier correctly on a wicket', () => {
+  it('calculates Vice-Captain 1.5x multiplier preserving decimal (25 x 1.5 = 37.5 points)', () => {
     const bowlerVC = createPlayer({
       id: 'shaheen',
       name: 'Shaheen Afridi',
@@ -156,8 +156,8 @@ describe('Dream11 T20 Scoring Engine', () => {
     const breakdown = result.playerBreakdowns[0];
     expect(breakdown.basePoints).toBe(25);
     expect(breakdown.multiplier).toBe(1.5);
-    expect(breakdown.netPoints).toBe(38);
-    expect(result.netTeamPointsDelta).toBe(38);
+    expect(breakdown.netPoints).toBe(37.5);
+    expect(result.netTeamPointsDelta).toBe(37.5);
   });
 
   it('calculates NET point change across ALL user players (Kohli duck + Shaheen wicket + Rizwan catch = +29 net)', () => {

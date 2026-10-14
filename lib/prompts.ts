@@ -73,36 +73,32 @@ export function buildCatchUpPrompt(
     .join('\n');
 
   const activePlayers = userTeam.filter((p) => p.points !== 0);
-  const pendingIndianBowlers = userTeam.filter(
-    (p) => p.team === 'IND' && (p.role === 'BOWL' || p.isViceCaptain) && p.points === 0,
-  );
-  const yetToBatOrBowl = userTeam.filter((p) => p.points === 0);
+  const pendingPlayers = userTeam.filter((p) => p.points === 0);
 
   const activePlayersText = activePlayers
     .map((p) => `${p.name}${p.isCaptain ? ' (C)' : p.isViceCaptain ? ' (VC)' : ''}: ${p.points} pts`)
     .join(', ');
 
-  const pendingText = pendingIndianBowlers
-    .map((p) => `${p.name}${p.isViceCaptain ? ' (VC)' : ''}`)
+  const pendingText = pendingPlayers
+    .map((p) => `${p.name}${p.isViceCaptain ? ' (VC)' : p.isCaptain ? ' (C)' : ''}`)
     .join(', ');
 
   return `Task: Provide a concise, high-energy 30-second match & fantasy catch-up summary for a fan who just opened the app mid-match.
 
 Match State:
-- Score: India ${currentScore.runs}/${currentScore.wickets} (${currentScore.overs} overs) vs Pakistan (Innings 1)
+- Score: India ${currentScore.runs}/${currentScore.wickets} (${currentScore.overs} overs) vs Pakistan
 - Recent match action:
 ${lastBallsSummary}
 
 User Fantasy Team State:
 - Total Points: ${totalPoints} pts
 - Current Simulated Rank: #${currentRank.toLocaleString()}
-- Key Active Contributors: ${activePlayersText || 'Innings just started'}
-- Indian Bowlers yet to bowl in 2nd Innings: ${pendingText || 'None'}
-- Other pending players: ${yetToBatOrBowl.map((p) => p.name).join(', ')}
+- Active Contributors: ${activePlayersText || 'No fantasy points yet'}
+- Pending players yet to bat or bowl: ${pendingText || 'All players have been active'}
 
 Output Format in ${language === 'hinglish' ? 'Hinglish' : 'English'}:
 - Paragraph 1: Match narrative so far (key wickets/highlights in 2-3 sentences).
 - Paragraph 2: What changed for the user's team (captains/scorers and current points/rank).
-- Paragraph 3: Strategic lookahead: which players are yet to bat or bowl (especially VC Bumrah in 2nd innings).
+- Paragraph 3: Strategic lookahead: which players in the team are yet to bat or bowl.
 Keep it conversational, punchy, and cricket-savvy. No unnecessary emojis.`;
 }

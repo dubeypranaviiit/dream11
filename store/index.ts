@@ -115,7 +115,7 @@ export const jumpToBall = createAsyncThunk<
       for (const pBreakdown of breakdown.playerBreakdowns) {
         const player = simulatedPlayers.find((p) => p.id === pBreakdown.playerId);
         if (player) {
-          player.points += pBreakdown.netPoints;
+          player.points = Math.round((player.points + pBreakdown.netPoints) * 10) / 10;
         }
       }
     }

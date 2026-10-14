@@ -1,17 +1,17 @@
 # Match Pulse — AI Live Fantasy Cricket Assistant
 
-A production-grade, mobile-first prototype built for the Dream11 Forward Deployed Engineer Intern assignment. Match Pulse solves the primary frustration fantasy sports fans face in live matches: understanding why their points, rankings, and multipliers fluctuate, plus catching up mid-match in seconds without confusion.
+A mobile-first prototype built for the Dream11 Forward Deployed Engineer Intern assignment. Match Pulse addresses the primary frustration fantasy sports fans face during live matches: understanding why their points, rankings, and multipliers fluctuate, and catching up mid-match in seconds without confusion.
 
 ---
 
 ## 1. The Fan Problem
 
-During a high-stakes live match (e.g., India vs Pakistan T20), fantasy cricket users experience high anxiety when their points and rankings fluctuate without immediate context:
+During a high-stakes live match (e.g., India vs Pakistan T20), fantasy cricket users experience anxiety when their points and rankings fluctuate without immediate context:
 - **"Why did I lose 12 points when my captain got out for 3?"**
 - **"Three different events just happened on one ball — did my team gain or lose points overall?"**
 - **"I opened the app at Over 3.4 — what did I miss, and who in my team is yet to play?"**
 
-Existing scorecards display traditional cricket metrics (runs, overs, wickets) but leave fans manually calculating complex fantasy rules (duck penalties, captain 2x multipliers, catches, boundary bonuses, and net team deltas).
+Traditional cricket scorecards show standard cricket metrics (runs, overs, wickets) but leave fans manually calculating complex fantasy rules (duck penalties, captain 2x multipliers, catches, boundary bonuses, and net team deltas).
 
 **Match Pulse bridges this gap in under 10 seconds:**
 1. Computes deterministic point changes per ball across all user players.
@@ -31,7 +31,7 @@ Existing scorecards display traditional cricket metrics (runs, overs, wickets) b
                                           v
 +-----------------------------------------------------------------------------------+
 |                      DETERMINISTIC ENGINE (lib/scoring.ts)                        |
-|  - Official Dream11 T20 Rules (DREAM11_T20_RULES)                                 |
+|  - Built from Dream11's Published T20 Scoring Rules (DREAM11_T20_RULES)           |
 |  - Kohli (Captain): Duck Penalty (-2) x 2.0 = -4 pts                              |
 |  - Shaheen: Wicket = +25 pts                                                      |
 |  - Rizwan: Catch = +8 pts                                                         |
@@ -48,6 +48,7 @@ Existing scorecards display traditional cricket metrics (runs, overs, wickets) b
 |  - selectTotalPoints (Derived)      |         |    numbers allowed)               |
 +-------------------------------------+         |  - Gemini Flash API (8s timeout)  |
           |                                     |  - Deterministic Fallback Guard   |
+          |                                     |  - Rate-Limited & Sanitized       |
           |                                     +-----------------------------------+
           |                                                       |
           +---------------------------+---------------------------+
@@ -64,19 +65,19 @@ Existing scorecards display traditional cricket metrics (runs, overs, wickets) b
 ```
 
 ### Why Pre-compute Points in Deterministic Code?
-LLMs are prone to arithmetic hallucination and non-deterministic scoring errors. To ensure 100% compliance with official Dream11 rules:
-- **`lib/scoring.ts`** calculates all base points, multipliers (2x Captain, 1.5x Vice-Captain), and net totals strictly in TypeScript.
+LLMs are prone to arithmetic hallucination and non-deterministic scoring errors. To ensure calculation fidelity:
+- **`lib/scoring.ts`** calculates all base points, multipliers (2.0x Captain, 1.5x Vice-Captain preserving decimals like 37.5 pts), and net totals strictly in TypeScript.
 - The pre-computed breakdown is injected into the Gemini prompt. The AI's sole role is to translate the math into friendly, cricket-savvy natural language (max 2 sentences, English or Hinglish).
-- If the Gemini API times out (8 seconds), hits a rate limit, or if no API key is provided, the route instantly returns a deterministic fallback explanation. **The UI never breaks.**
+- If the Gemini API times out (8 seconds), hits a rate limit, or if no API key is provided, the route instantly returns a deterministic fallback explanation. The UI never breaks.
 
 ---
 
 ## 3. Why Redux Toolkit (RTK)?
 
-1. **Predictable Unidirectional Data Flow for Complex Multi-Entity State**:
+1. **Predictable Unidirectional Data Flow for Multi-Entity State**:
    A single ball event simultaneously impacts the match score, bowler stats, batsman stats, wicketkeeper points, captain multipliers, cumulative fantasy points, and simulated leaderboard ranking. Redux Toolkit centralizes this logic in a predictable store without prop-drilling.
 2. **Unified Asynchronous Orchestration (`playNextBall` Thunk)**:
-   Advancing a ball requires sequential, atomic steps:
+   Advancing a ball executes atomic steps:
    - Advance the event in `matchSlice`.
    - Compute and apply fantasy points in `teamSlice`.
    - Update simulated rank.
@@ -84,7 +85,7 @@ LLMs are prone to arithmetic hallucination and non-deterministic scoring errors.
 3. **Derived Memoized Selectors (`createSelector`)**:
    - `selectTotalPoints`: Dynamically derived by summing the 11 player point tallies rather than storing duplicate state.
    - `selectLiveMatchScore`: Derived from the current ball index.
-   - `selectPendingPlayers`: Identifies players who have not yet batted or bowled (e.g., Vice-Captain Jasprit Bumrah waiting for the 2nd innings).
+   - `selectPendingPlayers`: Identifies players in the user's lineup who have 0 points and are yet to bat or bowl.
 4. **Request Caching**:
    `aiSlice.explanationCache` stores explanations by `ballId_language` to eliminate redundant network calls when re-visiting events.
 
@@ -115,7 +116,7 @@ Add your Gemini API Key in `.env.local`:
 ```env
 GEMINI_API_KEY=your_actual_gemini_api_key_here
 ```
-> **Note**: If `GEMINI_API_KEY` is omitted or empty, Match Pulse automatically activates the built-in deterministic fallback engine. All explanations and streaming catch-up summaries remain fully functional.
+> **Note**: If `GEMINI_API_KEY` is omitted or empty, Match Pulse automatically activates the built-in deterministic fallback engine. All explanations and streaming catch-up summaries remain functional. You can optionally set `GEMINI_MODEL=gemini-2.5-flash` or another supported flash model.
 
 ### Running the App
 ```bash
@@ -130,7 +131,18 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 5. Running Tests & Quality Verification
+## 5. Security & Rate Limiting
+
+- **Endpoint Rate Limiting**: Both `/api/explain` and `/api/catch-up` implement per-IP rate limiting (`lib/security.ts`) capped at 20 requests per minute per IP, responding with HTTP 429 when exceeded.
+- **Payload Sanitization & Size Caps**:
+  - `playedEvents` is capped at a maximum of 35 deliveries.
+  - `userTeam` is capped at 15 players.
+  - `event.description` and player names are sanitized and capped at 200 characters to prevent prompt injection attempts.
+- **Budget & Quota Cap Advice**: For production deployments or live demo sessions, configure spending budgets and per-minute quota limits directly within Google AI Studio / Google Cloud Console to prevent unexpected usage spikes.
+
+---
+
+## 6. Running Tests & Quality Verification
 
 ```bash
 # Run unit tests (Vitest)
@@ -143,44 +155,48 @@ npm run lint
 npx tsc --noEmit
 ```
 
-### Test Coverage Highlights (`tests/scoring.test.ts`)
-- **Official Dream11 Constants**: Run, Boundary Four (+4 bonus), Six (+6 bonus), Duck (-2), Wicket (+25), LBW/Bowled (+8 bonus), Catch (+8), Stumping (+12), Direct Run-Out (+12), Indirect (+6), Maiden Over (+12).
-- **Six Bonus**: 6 runs + 6 bonus = 12 points.
-- **Duck Penalty x Captain Multiplier**: -2 x 2.0 = -4 points.
-- **Vice-Captain Multiplier**: 25 wicket points x 1.5 = 38 points.
+### Scoring Rules & Test Coverage (`tests/scoring.test.ts`)
+Built from Dream11's published T20 scoring rules:
+- **Batting**: 1 pt/run; +1 boundary bonus (for 4); +2 six bonus (for 6); -2 duck penalty (for batsman, wicketkeeper, all-rounder out on 0).
+- **Bowling**: +25 per wicket (excl. run-out); +8 LBW/Bowled bonus; +12 maiden over.
+- **Fielding**: +8 catch; +12 stumping; +12 direct run-out; +6 shared run-out.
+- **Multipliers**: Captain receives 2.0x; Vice-Captain receives 1.5x (retaining exact decimals, e.g. 25 * 1.5 = 37.5 pts).
 - **Multi-Player Net Impact**: Kohli duck (-4 pts) + Shaheen wicket (+25 pts) + Rizwan catch (+8 pts) = **+29 net points**.
 - **Non-Team Ball**: Zero points and zero impact.
 
+### Note on `npm audit`
+`npm audit` reports a high-severity advisory on transitive `braces` dependencies through `eslint-config-next@16.4.0`. Running `npm audit fix --force` would downgrade `eslint-config-next` to version 14.x, which is a breaking change incompatible with Next.js 16 and React 19. The installed resolution already provides `braces@3.0.3`.
+
 ---
 
-## 6. Key Features Walkthrough
+## 7. Key Features Walkthrough
 
 1. **Simulate Next Ball & Autoplay**:
-   Advance through 31 realistic T20 balls (dots, fours, sixes, wickets, wides, and run-outs) or toggle Auto-Play.
+   Advance through 31 realistic T20 deliveries (dots, boundaries, sixes, wickets, wides, and a run-out) or toggle Auto-Play.
 2. **"Join Late at Ball 15"**:
-   One-click shortcut simulating the first 15 balls instantly so the "Catch me up" feature can be tested in a mid-game state.
+   Simulates the first 15 deliveries instantly so the "Catch me up" feature can be tested from a mid-innings state.
 3. **Reactive "Why Did My Points Change?" Card**:
    Instant display of net points (+29 / -4), simulated rank change, and a 2-sentence conversational explanation.
 4. **30-Second AI Match Catch-Up**:
    Click the "Catch me up" button in the header to open a streaming modal providing:
-   - Match situation so far.
-   - What changed for your fantasy team.
-   - Lookahead for pending players (e.g., VC Bumrah bowling in the 2nd innings).
+   - Match situation dynamically extracted from played deliveries.
+   - Fantasy team standing and top contributors.
+   - Lookahead for pending players yet to score points in the lineup.
 5. **Language Switcher (English / Hinglish)**:
-   Toggle between English and authentic cricket Hinglish with instant adaptation.
-6. **Mobile-First & Accessible**:
+   Toggle between English and casual cricket Hinglish with instant adaptation.
+6. **Mobile-First Design**:
    Optimized for mobile touch targets, dark sports UI theme, semantic HTML, and ARIA dialog attributes.
 
 ---
 
-## 7. Deploying to Vercel
+## 8. Deploying to Vercel
 
-Match Pulse is built on the Next.js App Router and is 100% Vercel-ready:
+Match Pulse is built on the Next.js App Router and deploys as standard serverless route handlers:
 
-1. Push your repository to GitHub / GitLab / Bitbucket.
+1. Push your repository to GitHub, GitLab, or Bitbucket.
 2. Log in to [Vercel](https://vercel.com) and click **"Add New Project"**.
 3. Import the `dream11` repository.
 4. In the **Environment Variables** section:
    - Key: `GEMINI_API_KEY`
    - Value: `your_gemini_api_key`
-5. Click **Deploy**. Vercel will build the static shell and serverless edge route handlers automatically.
+5. Click **Deploy**. Vercel will build the static shell and serverless route handlers automatically.
